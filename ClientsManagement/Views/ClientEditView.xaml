@@ -1,0 +1,54 @@
+﻿<Window x:Class="ClientsManagement.Views.ClientEditView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Редактирование клиента" Width="450" Height="350" SizeToContent="WidthAndHeight"
+        TextOptions.TextFormattingMode="Display"
+        WindowStartupLocation="CenterOwner"
+        Background="WhiteSmoke"
+        ResizeMode="NoResize">
+
+    <Border Margin="10,5,10,5" Padding="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+            BorderBrush="AliceBlue"  BorderThickness="2" CornerRadius="5">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition MinWidth="200"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Дней партнёрства" Margin="0,0,10,10"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PartnershipDuration}" HorizontalAlignment="Center" 
+                       Margin="0,0,0,10"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="ИНН" Margin="0,0,10,10"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=INN, Mode=TwoWay}" Margin="0,0,0,10"/>
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Наименование" Margin="0,0,10,10"/>
+            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Path=Name, Mode=TwoWay}" Margin="0,0,0,10"/>
+
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="Тип клиента" Margin="0,0,10,10"/>
+            <ComboBox Grid.Row="3" Grid.Column="1" IsEditable="False" IsReadOnly="True" 
+                      ItemsSource="{Binding ClientsTypes}" DisplayMemberPath="Name" SelectedValue="{Binding ClientType}" 
+                      Margin="0,0,100,10"/>
+
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="Дата заключения контракта" Margin="0,0,10,10"/>
+            <DatePicker Grid.Row="4" Grid.Column="1" SelectedDate="{Binding Path=DateContract, Mode=TwoWay}"
+                        IsEnabled="{Binding DateContractEnable}" Margin="0,0,100,10"/>
+
+            <TextBlock Grid.Row="5" Grid.Column="0" Text="Контактные данные" Margin="0,0,10,10"/>
+            <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding Path=Contacts, Mode=TwoWay}" Margin="0,0,0,20"/>
+
+            <Button Grid.Row="6" Grid.ColumnSpan="2" Content="Сохранить" Command="{Binding CommandSave}" Margin="50,0,50,0" Padding="5"/>
+        </Grid>
+    </Border>
+</Window>
