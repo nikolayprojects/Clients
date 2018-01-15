@@ -21,7 +21,7 @@ namespace ClientsManagement.Models
         IRepository<DAL.Clients> clientsRepository;
         IRepository<ClientsTypes> clientsTypesRepository;
 
-        public IRepository<DAL.Clients> ClientsRepository
+        public IRepository<Clients> ClientsRepository
         {
             get { return clientsRepository ?? (clientsRepository = new ClientsRepository(context)); }
         }
