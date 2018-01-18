@@ -1,6 +1,8 @@
-﻿namespace ClientsManagement.DTO
+﻿using MugenMvvmToolkit.Models;
+
+namespace ClientsManagement.DTO
 {
-    public class ClientTypeDTO : DTOBase
+    public class ClientTypeDTO : NotifyPropertyChangedBase
     {
         string name;
 
@@ -15,6 +17,8 @@
                 OnPropertyChanged(nameof(Name));
             }
         }
+
+        public ClientTypeDTO() { }
 
         public override string ToString()
         {

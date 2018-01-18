@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using ClientsManagement.DTO;
 using ClientsManagement.Models;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
@@ -66,15 +67,30 @@ namespace ClientsManagement.ViewModels
 
         async void SaveHandler()
         {
-            if (editType == EditType.Add)
-            {
-                await clientsModel.AddClientAsync(client);
-            }
-            else
-            {
-                await clientsModel.ChangeClientAsync(client);
-            }
+            IBusyToken token = null;
 
+            try
+            {
+                token = BeginBusy();
+
+                if (editType == EditType.Add)
+                {
+                    await clientsModel.AddClientAsync(client);
+                }
+                else
+                {
+                    await clientsModel.ChangeClientAsync(client);
+                }
+            }
+            catch(Exception ex)
+            {
+
+            }
+            finally
+            {
+                token.Dispose();
+            }
+            
             await ((IViewModel)this).CloseAsync();
         }
 

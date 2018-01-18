@@ -1,8 +1,9 @@
 ﻿using System;
+using MugenMvvmToolkit.Models;
 
 namespace ClientsManagement.DTO
 {
-    public class ClientDTO : DTOBase
+    public class ClientDTO : NotifyPropertyChangedBase
     {
         string inn;
         string name;
