@@ -1,6 +1,6 @@
-﻿using ClientsManagement.DAL;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using ClientsManagement.DAL;
 
 namespace ClientsManagement.Models
 {
@@ -11,7 +11,7 @@ namespace ClientsManagement.Models
 
     public interface IClientsUnitOfWork : IUnitOfWork
     {
-        IRepository<DAL.Clients> ClientsRepository { get; }
+        IRepository<Clients> ClientsRepository { get; }
         IRepository<ClientsTypes> ClientsTypesRepository { get; }
     }
 

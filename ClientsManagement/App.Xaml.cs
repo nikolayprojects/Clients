@@ -1,10 +1,11 @@
 using System;
 using System.Windows;
+using ClientsManagement.DAL;
+using ClientsManagement.Models;
 using ClientsManagement.ViewModels;
 using MugenMvvmToolkit;
-using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.ViewModels;
 using MugenMvvmToolkit.WPF.Infrastructure;
+using Ninject;
 
 namespace ClientsManagement
 {
@@ -12,8 +13,11 @@ namespace ClientsManagement
     {
         public App()
         {
-            // ReSharper disable once ObjectCreationAsStatement
-            new Bootstrapper<MugenApplication>(this, new MugenContainer());
+            IKernel kernel = new StandardKernel();
+            kernel.Bind<IClientsUnitOfWork>().To<ClientsUnitOfWork>().InSingletonScope();
+            kernel.Bind<MainViewModel>().ToSelf();
+
+            new Bootstrapper<MugenApplication>(this, new NinjectContainer(kernel));
         }
 
         [STAThread]

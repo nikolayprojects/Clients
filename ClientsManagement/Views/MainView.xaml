@@ -12,18 +12,18 @@
             <i:InvokeCommandAction Command="{Binding CommandAppLoad}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    
+
     <DockPanel>
         <Menu DockPanel.Dock="Top" Background="AliceBlue">
-            <MenuItem Header="Список клиентов" Command="{Binding CommandMenuAction}"/>
+            <MenuItem Header="Список типов клиентов" Command="{Binding CommandMenuAction}"/>
         </Menu>
-        
+
         <ToolBar DockPanel.Dock="Top" Padding="0,2,0,2">
             <Button Command="{Binding CommandToolBarAction}" CommandParameter="Add">Добавить</Button>
             <Button Command="{Binding CommandToolBarAction}" CommandParameter="Change">Изменить</Button>
             <Button Command="{Binding CommandToolBarAction}" CommandParameter="Remove">Удалить</Button>
         </ToolBar>
-        
+
         <Grid>
             <DataGrid IsReadOnly="True"
                   HeadersVisibility="Column"
@@ -33,7 +33,8 @@
                   CanUserResizeRows="False"
                   CanUserSortColumns="False"
                   ItemsSource="{Binding Clients}"
-                  SelectedItem="{Binding SelectedClient}">
+                  SelectedItem="{Binding SelectedClient}"
+                  SelectedIndex="{Binding SelectedIndex}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="ИНН" Binding="{Binding INN}" Width="Auto"/>
                     <DataGridTextColumn Header="Наименование клиента" Binding="{Binding Name}" Width="*"/>

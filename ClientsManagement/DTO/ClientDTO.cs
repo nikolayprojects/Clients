@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using MugenMvvmToolkit.Models;
 
 namespace ClientsManagement.DTO
@@ -13,6 +14,7 @@ namespace ClientsManagement.DTO
 
         public int ID { get; set; }
 
+        [Required, Display(Name = "ИНН"), StringLength(12, MinimumLength = 12)]
         public string INN
         {
             get { return inn; }
@@ -23,6 +25,7 @@ namespace ClientsManagement.DTO
             }
         }
 
+        [Required, Display(Name = "Наименование"), StringLength(150, MinimumLength = 1)]
         public string Name
         {
             get { return name; }
@@ -33,6 +36,7 @@ namespace ClientsManagement.DTO
             }
         }
 
+        [Required, Display(Name = "Тип клиента")]
         public ClientTypeDTO Type
         {
             get { return type; }
@@ -43,6 +47,7 @@ namespace ClientsManagement.DTO
             }
         }
 
+        [Required, Display(Name = "Дата заключения контракта")]
         public DateTime DateContract
         {
             get { return dateContract; }
@@ -52,12 +57,13 @@ namespace ClientsManagement.DTO
                 OnPropertyChanged(nameof(DateContract));
             }
         }
-        
+
         public int PartnershipDuration
         {
             get { return (DateTime.Now - DateContract).Days; }
         }
 
+        [Required, Display(Name = "Контактные данные")]
         public string Contacts
         {
             get { return contacts; }

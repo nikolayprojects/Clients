@@ -7,11 +7,21 @@
         WindowStartupLocation="CenterOwner"
         Background="WhiteSmoke"
         ResizeMode="NoResize">
-
+    
     <Border Margin="10,5,10,5" Padding="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
             BorderBrush="AliceBlue" BorderThickness="2" CornerRadius="5">
         <xctk:BusyIndicator IsBusy="{Binding IsBusy}">
             <Grid>
+                <Grid.Resources>
+                    <Style TargetType="TextBox" BasedOn="{StaticResource ClientsErrorStyle}">
+                        <Setter Property="Margin" Value="0,0,0,10"/>
+                    </Style>
+                    <Style TargetType="DatePicker" BasedOn="{StaticResource ClientsErrorStyle}"/>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Margin" Value="0,0,10,10"/>
+                    </Style>
+                </Grid.Resources>
+
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -28,30 +38,42 @@
                     <ColumnDefinition MinWidth="200"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Дней партнёрства" Margin="0,0,10,10"/>
-                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PartnershipDuration}" HorizontalAlignment="Center" 
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Дней партнёрства"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PartnershipDuration, 
+                    UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" HorizontalAlignment="Center" 
                        Margin="0,0,0,10"/>
 
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="ИНН" Margin="0,0,10,10"/>
-                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=INN, Mode=TwoWay}" Margin="0,0,0,10"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="ИНН"/>
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=INN, Mode=TwoWay, 
+                    UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
 
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="Наименование" Margin="0,0,10,10"/>
-                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Path=Name, Mode=TwoWay}" Margin="0,0,0,10"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Наименование"/>
+                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Path=Name, Mode=TwoWay, 
+                    UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="Ожидайте проверки..." HorizontalAlignment="Right" Foreground="Green" Visibility="Visible"/>
 
-                <TextBlock Grid.Row="3" Grid.Column="0" Text="Тип клиента" Margin="0,0,10,10"/>
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Тип клиента"/>
                 <ComboBox Grid.Row="3" Grid.Column="1" IsEditable="False" IsReadOnly="True" 
-                      ItemsSource="{Binding ClientsTypes}" DisplayMemberPath="Name" SelectedValue="{Binding ClientType}" 
-                      Margin="0,0,100,10"/>
+                      ItemsSource="{Binding ClientsTypes}" 
+                      DisplayMemberPath="Name" 
+                      SelectedValue="{Binding ClientType, UpdateSourceTrigger=PropertyChanged, 
+                      ValidatesOnNotifyDataErrors=True}" Margin="0,0,100,10">
+                </ComboBox>
 
-                <TextBlock Grid.Row="4" Grid.Column="0" Text="Дата заключения контракта" Margin="0,0,10,10"/>
-                <DatePicker Grid.Row="4" Grid.Column="1" SelectedDate="{Binding Path=DateContract, Mode=TwoWay}"
-                        IsEnabled="{Binding DateContractEnable}" Margin="0,0,100,10"/>
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="Дата заключения контракта"/>
+                <DatePicker Grid.Row="4" Grid.Column="1" 
+                            SelectedDate="{Binding Path=DateContract, 
+                            Mode=TwoWay, 
+                            UpdateSourceTrigger=PropertyChanged, 
+                            ValidatesOnNotifyDataErrors=True}"
+                            IsEnabled="{Binding DateContractEnable}" Margin="0,0,100,10"/>
 
-                <TextBlock Grid.Row="5" Grid.Column="0" Text="Контактные данные" Margin="0,0,10,10"/>
-                <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding Path=Contacts, Mode=TwoWay}" Margin="0,0,0,20"/>
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="Контактные данные"/>
+                <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding Path=Contacts, Mode=TwoWay, 
+                    UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
 
                 <Button Grid.Row="6" Grid.ColumnSpan="2" Content="Сохранить" Command="{Binding CommandSave}" 
-                    Margin="50,0,50,0" Padding="5"/>
+                    Margin="50,20,50,0" Padding="5"/>
             </Grid>
         </xctk:BusyIndicator>
     </Border>

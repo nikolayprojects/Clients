@@ -59,8 +59,17 @@
     <Reference Include="MugenMvvmToolkit, Version=6.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MugenMvvmToolkit.6.5.0\lib\net45\MugenMvvmToolkit.dll</HintPath>
     </Reference>
+    <Reference Include="MugenMvvmToolkit.NinjectContainer, Version=6.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MugenMvvmToolkit.NinjectContainer.6.5.0\lib\net40\MugenMvvmToolkit.NinjectContainer.dll</HintPath>
+    </Reference>
     <Reference Include="MugenMvvmToolkit.WPF, Version=6.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MugenMvvmToolkit.WPF.6.5.0\lib\net45\MugenMvvmToolkit.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject.Extensions.ChildKernel, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.Extensions.ChildKernel.3.2.0.0\lib\net45-full\Ninject.Extensions.ChildKernel.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -145,14 +154,15 @@
     <Compile Include="DAL\ClientsTypesRepository.cs" />
     <Compile Include="DAL\IRepository.cs" />
     <Compile Include="Models\UnitOfWork.cs" />
-    <Compile Include="DTO\Client.cs" />
-    <Compile Include="DTO\ClientType.cs" />
+    <Compile Include="DTO\ClientDTO.cs" />
+    <Compile Include="DTO\ClientTypeDTO.cs" />
     <Compile Include="Models\ClientsModel.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Util\CustomBindingList.cs" />
     <Compile Include="ViewModels\ClientEditViewModel.cs" />
     <Compile Include="ViewModels\ClientsTypesEditViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />

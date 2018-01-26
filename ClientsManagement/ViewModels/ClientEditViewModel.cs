@@ -1,7 +1,14 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 using ClientsManagement.DTO;
 using ClientsManagement.Models;
+using MugenMvvmToolkit.Infrastructure.Validation;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -9,11 +16,10 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace ClientsManagement.ViewModels
 {
-    public class ClientEditViewModel : ViewModelBase
+    public class ClientEditViewModel : EditableViewModel<ClientDTO>
     {
         enum EditType { Add, Change };
         EditType editType;
-        ClientDTO client;
         ClientsModel clientsModel;
 
         #region ~Свойства~
@@ -21,39 +27,35 @@ namespace ClientsManagement.ViewModels
 
         public string INN
         {
-            get { return client.INN; }
-            set { client.INN = value; }
+            get { return Entity.INN; }
+            set { Entity.INN = value; }
         }
 
         public string Name
         {
-            get { return client.Name; }
-            set { client.Name = value; }
+            get { return Entity.Name; }
+            set { Entity.Name = value; }
         }
 
         public DateTime DateContract
         {
-            get { return client.DateContract; }
-            set { client.DateContract = value; }
+            get { return Entity.DateContract; }
+            set { Entity.DateContract = value; }
         }
 
         public ClientTypeDTO ClientType
         {
-            get { return client.Type; }
-            set
-            {
-                OnPropertyChanged(nameof(ClientType));
-                client.Type = value;
-            }
+            get { return Entity.Type; }
+            set { Entity.Type = value; }
         }
 
         public string Contacts
         {
-            get { return client.Contacts; }
-            set { client.Contacts = value; }
+            get { return Entity.Contacts; }
+            set { Entity.Contacts = value; }
         }
 
-        public int PartnershipDuration => client.PartnershipDuration;
+        public int PartnershipDuration => Entity.PartnershipDuration;
 
         public ObservableCollection<ClientTypeDTO> ClientsTypes => clientsModel.ClientsTypesList;
 
@@ -62,7 +64,7 @@ namespace ClientsManagement.ViewModels
 
         public ClientEditViewModel()
         {
-            CommandSave = new RelayCommand(SaveHandler);
+            CommandSave = new RelayCommand(SaveHandler, () => IsValid, this);
         }
 
         async void SaveHandler()
@@ -75,40 +77,119 @@ namespace ClientsManagement.ViewModels
 
                 if (editType == EditType.Add)
                 {
-                    await clientsModel.AddClientAsync(client);
+                    await clientsModel.AddClientAsync(Entity);
                 }
                 else
                 {
-                    await clientsModel.ChangeClientAsync(client);
+                    await clientsModel.ChangeClientAsync(Entity);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-
+                MessageBox.Show($"Ошибка при изменении клиента!\r\n\r\n{ex.Message}", "Ошибка!", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
             finally
             {
                 token.Dispose();
             }
-            
+
             await ((IViewModel)this).CloseAsync();
         }
 
         public void Initialize(ClientsModel clientsModel)
         {
-            client = new ClientDTO();
             editType = EditType.Add;
             DateContractEnable = true;
             this.clientsModel = clientsModel;
 
+            InitializeEntity(new ClientDTO(), true);
+
             DateContract = DateTime.Now;
+
+            AddValidator<ClientEditViewModelValidator>(Entity);
         }
 
-        public void Initialize(ClientDTO client, ClientsModel clientsModel)
+        public void Initialize(ClientDTO clientDTO, ClientsModel clientsModel)
         {
             editType = EditType.Change;
-            this.client = client;
             this.clientsModel = clientsModel;
+
+            InitializeEntity(clientDTO, true);
+
+            AddValidator<ClientEditViewModelValidator>(Entity);
+        }
+    }
+
+    class ClientEditViewModelValidator : ValidatorBase<ClientDTO>
+    {
+        const byte NAME_LENGTH_MAX = 150;
+        const byte NAME_LENGTH_MIN = 1;
+        const byte INN_LENGTH = 12;
+
+        readonly Regex regex;
+
+        public ClientEditViewModelValidator()
+        {
+            regex = new Regex(@"^\d+$");
+        }
+
+        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(string propertyName, CancellationToken token)
+        {
+            IDictionary<string, IEnumerable> dictionary = new Dictionary<string, IEnumerable>();
+
+            if (EmptyStringCheck())
+            {
+                dictionary.Add(propertyName, "Значение не указано.");
+                return Task.FromResult(dictionary);
+            }
+
+            if (propertyName == nameof(Instance.INN))
+            {
+                if (!regex.IsMatch(Instance.INN))
+                {
+                    dictionary.Add(propertyName, "При вводе значения разрешены только цифры.");
+                }
+                else if (Instance.INN.Length != INN_LENGTH)
+                {
+                    dictionary.Add(propertyName, "Значение имеет недопустимую длину.");
+                }
+
+                return Task.FromResult(dictionary);
+            }
+
+            if (propertyName == nameof(Instance.Name))
+            {
+                if (!(Instance.Name.Length >= NAME_LENGTH_MIN && Instance.Name.Length <= NAME_LENGTH_MAX))
+                {
+                    dictionary.Add(propertyName, "Значение имеет недопустимую длину.");
+                }
+            }
+
+            bool EmptyStringCheck()
+            {
+                switch (propertyName)
+                {
+                    case nameof(Instance.INN):
+                        return string.IsNullOrWhiteSpace(Instance.INN);
+
+                    case nameof(Instance.Name):
+                        return string.IsNullOrWhiteSpace(Instance.Name);
+
+                    case nameof(Instance.Contacts):
+                        return string.IsNullOrWhiteSpace(Instance.Contacts);
+
+                    default:
+                        return false;
+                }
+            }
+
+            return Task.FromResult(dictionary);
+        }
+
+        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(CancellationToken token)
+        {
+            return EmptyResult;
         }
     }
 }

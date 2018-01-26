@@ -1,4 +1,5 @@
-﻿using MugenMvvmToolkit.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using MugenMvvmToolkit.Models;
 
 namespace ClientsManagement.DTO
 {
@@ -8,6 +9,7 @@ namespace ClientsManagement.DTO
 
         public int ID { get; set; }
 
+        [Required]
         public string Name
         {
             get { return name; }

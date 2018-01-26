@@ -1,11 +1,11 @@
-﻿using ClientsManagement.DTO;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Windows;
+using ClientsManagement.DTO;
 using ClientsManagement.Models;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
-using System;
-using System.Collections.ObjectModel;
-using System.Windows;
 
 namespace ClientsManagement.ViewModels
 {
@@ -19,12 +19,12 @@ namespace ClientsManagement.ViewModels
         public ObservableCollection<ClientDTO> Clients => clientsModel.ClientsList;
         public ClientDTO SelectedClient { get; set; }
 
-        public MainViewModel()
+        public MainViewModel(IClientsUnitOfWork unitOfWork)
         {
             CommandAppLoad = new RelayCommand(AppLoadHandler);
             CommandToolBarAction = new RelayCommand<string>(ToolBarActionHandler);
             CommandMenuAction = new RelayCommand(MenuActionHandler);
-            clientsModel = new ClientsModel(new ClientsUnitOfWork());
+            clientsModel = new ClientsModel(unitOfWork);
         }
 
         async void AppLoadHandler()
@@ -75,19 +75,32 @@ namespace ClientsManagement.ViewModels
             }
             else if (type == "Remove" && Check())
             {
-                await clientsModel.RemoveClientAsync(SelectedClient);
+                try
+                {
+                    await clientsModel.RemoveClientAsync(SelectedClient);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при удалении клиента!\r\n\r\n{ex.Message}", "Ошибка!", MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
 
                 SelectedClient = null;
             }
 
             bool Check()
             {
-                if (SelectedClient == null)
+                if (Clients.Count == 1)
+                {
+                    SelectedClient = Clients[0];
+                    return true;
+                }
+                else if (SelectedClient == null)
                 {
                     MessageBox.Show("Не выбран клиент!", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return false;
                 }
-
+                
                 return true;
             }
         }

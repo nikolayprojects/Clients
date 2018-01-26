@@ -76,12 +76,14 @@ namespace ClientsManagement.Models
                 throw new ArgumentNullException(nameof(clientDTO));
 
             Clients entity = new Clients();
-
+            
             await ToClientEntity(entity, clientDTO, clientsTypesRepository).ConfigureAwait(false);
 
             clientsRepository.Insert(entity);
 
             await unitOfWork.SaveAsync().ConfigureAwait(false);
+
+            clientDTO.ID = entity.ID;
 
             dispatcher.Invoke(() => ClientsList.Add(clientDTO));
         }
