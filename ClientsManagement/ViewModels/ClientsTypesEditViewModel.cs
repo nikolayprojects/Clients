@@ -38,7 +38,7 @@ namespace ClientsManagement.ViewModels
                         await clientsModel.AddClientTypeAsync(e.Item);
                         break;
                     case ItemsChangedType.Changed:
-                        await clientsModel.ChangedClientTypeAsync(e.Item);
+                        await clientsModel.UpdateClientTypeAsync(e.Item);
                         break;
                     case ItemsChangedType.Deleted:
                         await clientsModel.RemoveClientTypeAsync(e.Item);

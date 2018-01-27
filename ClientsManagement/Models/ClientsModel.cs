@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Windows.Threading;
 using ClientsManagement.DAL;
 using ClientsManagement.DTO;
+using ClientsManagement.Util;
 using static ClientsManagement.Models.ClientsModelHelper;
 
 namespace ClientsManagement.Models
@@ -13,59 +13,68 @@ namespace ClientsManagement.Models
         readonly IRepository<Clients> clientsRepository;
         readonly IRepository<ClientsTypes> clientsTypesRepository;
         readonly IClientsUnitOfWork unitOfWork;
-        readonly Dispatcher dispatcher;
+        readonly ICollectionWrapper<ClientDTO> colwrapClientDTO;
+        readonly ICollectionWrapper<ClientTypeDTO> colwrapClientTypeDTO;
 
-        public readonly ObservableCollection<ClientDTO> ClientsList;
-        public readonly ObservableCollection<ClientTypeDTO> ClientsTypesList;
+        public readonly IList<ClientDTO> ClientsList;
+        public readonly IList<ClientTypeDTO> ClientsTypesList;
 
-        public ClientsModel(IClientsUnitOfWork unitOfWork)
+        public ClientsModel(IClientsUnitOfWork unitOfWork, ICollectionWrapperFactory collectionWrapperFactory)
         {
             if (unitOfWork == null)
                 throw new ArgumentNullException(nameof(unitOfWork));
 
-            ClientsList = new ObservableCollection<ClientDTO>();
-            ClientsTypesList = new ObservableCollection<ClientTypeDTO>();
+            if (collectionWrapperFactory == null)
+                throw new ArgumentNullException(nameof(collectionWrapperFactory));
 
+            colwrapClientDTO = collectionWrapperFactory.Create<ClientDTO>();
+            colwrapClientTypeDTO = collectionWrapperFactory.Create<ClientTypeDTO>();
+
+            ClientsList = colwrapClientDTO.Collection;
+            ClientsTypesList = colwrapClientTypeDTO.Collection;
+            
             clientsRepository = unitOfWork.ClientsRepository;
             clientsTypesRepository = unitOfWork.ClientsTypesRepository;
-
-            dispatcher = Dispatcher.CurrentDispatcher;
 
             this.unitOfWork = unitOfWork;
         }
 
         public Task LoadAllAsync()
         {
+            Dictionary<int, ClientTypeDTO> clientsTypes = new Dictionary<int, ClientTypeDTO>();
+
             return Task.Run(() =>
             {
-                var clients = clientsRepository.Get();
-                
-                foreach (var item in clients)
+                var clientsTypesDTO = clientsTypesRepository.Get();
+
+                foreach (var item in clientsTypesDTO)
                 {
-                    dispatcher.Invoke(() => ClientsList.Add(new ClientDTO()
+                    ClientTypeDTO clientTypeDTO = new ClientTypeDTO()
+                    {
+                        ID = item.ID,
+                        Name = item.Name
+                    };
+
+                    colwrapClientTypeDTO.Add(clientTypeDTO);
+
+                    clientsTypes.Add(item.ID, clientTypeDTO);
+                }
+
+                var clientsDTO = clientsRepository.Get();
+
+                foreach (var item in clientsDTO)
+                {
+                    ClientDTO clientDTO = new ClientDTO()
                     {
                         ID = item.ID,
                         INN = item.INN,
                         Name = item.Name,
                         DateContract = item.DateContract,
                         Contacts = item.Contacts,
-                        Type = new ClientTypeDTO()
-                        {
-                            ID = item.ClientsTypes.ID,
-                            Name = item.ClientsTypes.Name
-                        }
-                    }));
-                }
+                        Type = clientsTypes[item.Type]
+                    };
 
-                var clientsTypes = clientsTypesRepository.Get();
-
-                foreach (var item in clientsTypes)
-                {
-                    dispatcher.Invoke(() => ClientsTypesList.Add(new ClientTypeDTO()
-                    {
-                        ID = item.ID,
-                        Name = item.Name
-                    }));
+                    colwrapClientDTO.Add(clientDTO);
                 }
             });
         }
@@ -75,9 +84,12 @@ namespace ClientsManagement.Models
             if (clientDTO == null)
                 throw new ArgumentNullException(nameof(clientDTO));
 
+            if (ClientsTypesList.Count == 0)
+                throw new InvalidOperationException("Операция не может быть выполнена, т.к. список клиентов пуст.");
+
             Clients entity = new Clients();
-            
-            await ToClientEntity(entity, clientDTO, clientsTypesRepository).ConfigureAwait(false);
+
+            await ClientDTOToClientEntity(entity, clientDTO, clientsTypesRepository).ConfigureAwait(false);
 
             clientsRepository.Insert(entity);
 
@@ -85,17 +97,22 @@ namespace ClientsManagement.Models
 
             clientDTO.ID = entity.ID;
 
-            dispatcher.Invoke(() => ClientsList.Add(clientDTO));
+            colwrapClientDTO.Add(clientDTO);
         }
 
-        public async Task<bool> ChangeClientAsync(ClientDTO clientDTO)
+        public async Task<bool> UpdateClientAsync(ClientDTO clientDTO)
         {
             if (clientDTO == null)
                 throw new ArgumentNullException(nameof(clientDTO));
 
+            if (ClientsTypesList.Count == 0)
+                throw new InvalidOperationException("Операция не может быть выполнена, т.к. список клиентов пуст.");
+
             Clients entity = await clientsRepository.FindByIDAsync(clientDTO.ID).ConfigureAwait(false);
 
-            if (clientsRepository.Update(await ToClientEntity(entity, clientDTO, clientsTypesRepository).ConfigureAwait(false)))
+            await ClientDTOToClientEntity(entity, clientDTO, clientsTypesRepository).ConfigureAwait(false);
+
+            if (clientsRepository.Update(entity))
             {
                 await unitOfWork.SaveAsync().ConfigureAwait(false);
                 return true;
@@ -115,18 +132,18 @@ namespace ClientsManagement.Models
 
             await unitOfWork.SaveAsync().ConfigureAwait(false);
 
-            dispatcher.Invoke(() => ClientsList.Remove(clientDTO));
+            colwrapClientDTO.Remove(clientDTO);
         }
 
-        public async Task AddClientTypeAsync(ClientTypeDTO clientType)
+        public async Task AddClientTypeAsync(ClientTypeDTO clientTypeDTO)
         {
-            ClientsTypes entity = new ClientsTypes() { Name = clientType.Name };
+            ClientsTypes entity = new ClientsTypes() { Name = clientTypeDTO.Name };
 
             clientsTypesRepository.Insert(entity);
 
             await unitOfWork.SaveAsync();
 
-            clientType.ID = entity.ID;
+            clientTypeDTO.ID = entity.ID;
         }
 
         public async Task RemoveClientTypeAsync(ClientTypeDTO clientTypeDTO)
@@ -134,7 +151,7 @@ namespace ClientsManagement.Models
             ClientsTypes entity = await clientsTypesRepository.FindByIDAsync(clientTypeDTO.ID).ConfigureAwait(false);
 
             clientsTypesRepository.Remove(entity);
-            
+
             await unitOfWork.SaveAsync().ConfigureAwait(false);
 
             await Task.Run(() =>
@@ -142,14 +159,16 @@ namespace ClientsManagement.Models
                 for (int i = ClientsList.Count - 1; i >= 0; i--)
                 {
                     if (ClientsList[i].Type.ID == clientTypeDTO.ID)
-                        dispatcher.Invoke(() => ClientsList.RemoveAt(i));
+                        colwrapClientDTO.RemoveAt(i);
                 }
+
             }).ConfigureAwait(false);
         }
 
-        public async Task ChangedClientTypeAsync(ClientTypeDTO clientTypeDTO)
+        public async Task UpdateClientTypeAsync(ClientTypeDTO clientTypeDTO)
         {
             ClientsTypes entity = await clientsTypesRepository.FindByIDAsync(clientTypeDTO.ID).ConfigureAwait(false);
+            entity.Name = clientTypeDTO.Name;
 
             clientsTypesRepository.Update(entity);
 
@@ -159,15 +178,13 @@ namespace ClientsManagement.Models
 
     static class ClientsModelHelper
     {
-        public static async Task<Clients> ToClientEntity(Clients clientEntity, ClientDTO clientDTO, IRepository<ClientsTypes> repository)
+        public static async Task ClientDTOToClientEntity(Clients clientEntity, ClientDTO clientDTO, IRepository<ClientsTypes> repository)
         {
             clientEntity.INN = clientDTO.INN;
             clientEntity.Name = clientDTO.Name;
             clientEntity.DateContract = clientDTO.DateContract;
             clientEntity.Contacts = clientDTO.Contacts;
             clientEntity.ClientsTypes = await repository.FindByIDAsync(clientDTO.Type.ID).ConfigureAwait(false);
-
-            return clientEntity;
         }
     }
 }

@@ -162,6 +162,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Util\CollectionWrapper.cs" />
     <Compile Include="Util\CustomBindingList.cs" />
     <Compile Include="ViewModels\ClientEditViewModel.cs" />
     <Compile Include="ViewModels\ClientsTypesEditViewModel.cs" />

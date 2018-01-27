@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Windows;
 using ClientsManagement.DTO;
 using ClientsManagement.Models;
+using ClientsManagement.Util;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
@@ -16,15 +17,15 @@ namespace ClientsManagement.ViewModels
         public RelayCommand CommandAppLoad { get; }
         public RelayCommand<string> CommandToolBarAction { get; }
         public RelayCommand CommandMenuAction { get; }
-        public ObservableCollection<ClientDTO> Clients => clientsModel.ClientsList;
+        public IList<ClientDTO> Clients => clientsModel.ClientsList;
         public ClientDTO SelectedClient { get; set; }
 
-        public MainViewModel(IClientsUnitOfWork unitOfWork)
+        public MainViewModel(IClientsUnitOfWork unitOfWork, ICollectionWrapperFactory collectionWrapperFactory)
         {
             CommandAppLoad = new RelayCommand(AppLoadHandler);
             CommandToolBarAction = new RelayCommand<string>(ToolBarActionHandler);
             CommandMenuAction = new RelayCommand(MenuActionHandler);
-            clientsModel = new ClientsModel(unitOfWork);
+            clientsModel = new ClientsModel(unitOfWork, collectionWrapperFactory);
         }
 
         async void AppLoadHandler()
@@ -50,7 +51,7 @@ namespace ClientsManagement.ViewModels
 
         async void ToolBarActionHandler(string type)
         {
-            if (type == "Add" || type == "Change")
+            if (type == "Add" || type == "Update")
             {
                 using (var viewModel = GetViewModel<ClientEditViewModel>())
                 {

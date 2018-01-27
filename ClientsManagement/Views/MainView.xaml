@@ -20,7 +20,7 @@
 
         <ToolBar DockPanel.Dock="Top" Padding="0,2,0,2">
             <Button Command="{Binding CommandToolBarAction}" CommandParameter="Add">Добавить</Button>
-            <Button Command="{Binding CommandToolBarAction}" CommandParameter="Change">Изменить</Button>
+            <Button Command="{Binding CommandToolBarAction}" CommandParameter="Update">Изменить</Button>
             <Button Command="{Binding CommandToolBarAction}" CommandParameter="Remove">Удалить</Button>
         </ToolBar>
 
@@ -33,8 +33,7 @@
                   CanUserResizeRows="False"
                   CanUserSortColumns="False"
                   ItemsSource="{Binding Clients}"
-                  SelectedItem="{Binding SelectedClient}"
-                  SelectedIndex="{Binding SelectedIndex}">
+                  SelectedItem="{Binding SelectedClient}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="ИНН" Binding="{Binding INN}" Width="Auto"/>
                     <DataGridTextColumn Header="Наименование клиента" Binding="{Binding Name}" Width="*"/>

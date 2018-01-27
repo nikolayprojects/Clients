@@ -73,5 +73,32 @@ namespace ClientsManagement.DTO
                 OnPropertyChanged(nameof(Contacts));
             }
         }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            ClientDTO clientDTO = obj as ClientDTO;
+
+            if (obj == null || clientDTO == null)
+                return false;
+
+            return clientDTO.ID == ID &&
+                clientDTO.name == name &&
+                clientDTO.dateContract == dateContract &&
+                clientDTO.contacts == contacts &&
+                clientDTO.type.Equals(type);
+        }
+
+        public override int GetHashCode()
+        {
+            return ID.GetHashCode() ^
+                   (inn != null ? inn.GetHashCode() : 0) ^
+                   (name != null ? name.GetHashCode() : 0) ^
+                   (type != null ? type.GetHashCode() : 0) ^
+                   dateContract.GetHashCode() ^
+                   (contacts != null ? contacts.GetHashCode() : 0);
+        }
     }
 }

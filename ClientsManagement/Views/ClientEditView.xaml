@@ -50,7 +50,6 @@
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Наименование"/>
                 <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Path=Name, Mode=TwoWay, 
                     UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
-                <TextBlock Grid.Row="2" Grid.Column="1" Text="Ожидайте проверки..." HorizontalAlignment="Right" Foreground="Green" Visibility="Visible"/>
 
                 <TextBlock Grid.Row="3" Grid.Column="0" Text="Тип клиента"/>
                 <ComboBox Grid.Row="3" Grid.Column="1" IsEditable="False" IsReadOnly="True" 

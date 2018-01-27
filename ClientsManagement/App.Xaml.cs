@@ -1,7 +1,7 @@
 using System;
 using System.Windows;
-using ClientsManagement.DAL;
 using ClientsManagement.Models;
+using ClientsManagement.Util;
 using ClientsManagement.ViewModels;
 using MugenMvvmToolkit;
 using MugenMvvmToolkit.WPF.Infrastructure;
@@ -14,6 +14,7 @@ namespace ClientsManagement
         public App()
         {
             IKernel kernel = new StandardKernel();
+            kernel.Bind<ICollectionWrapperFactory>().To<CollectionWrapperFactory>();
             kernel.Bind<IClientsUnitOfWork>().To<ClientsUnitOfWork>().InSingletonScope();
             kernel.Bind<MainViewModel>().ToSelf();
 

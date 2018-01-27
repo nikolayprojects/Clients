@@ -18,7 +18,7 @@ namespace ClientsManagement.ViewModels
 {
     public class ClientEditViewModel : EditableViewModel<ClientDTO>
     {
-        enum EditType { Add, Change };
+        enum EditType { Add, Update };
         EditType editType;
         ClientsModel clientsModel;
 
@@ -57,7 +57,7 @@ namespace ClientsManagement.ViewModels
 
         public int PartnershipDuration => Entity.PartnershipDuration;
 
-        public ObservableCollection<ClientTypeDTO> ClientsTypes => clientsModel.ClientsTypesList;
+        public IList<ClientTypeDTO> ClientsTypes => clientsModel.ClientsTypesList;
 
         public bool DateContractEnable { get; set; }
         #endregion
@@ -81,7 +81,11 @@ namespace ClientsManagement.ViewModels
                 }
                 else
                 {
-                    await clientsModel.ChangeClientAsync(Entity);
+                    if (!await clientsModel.UpdateClientAsync(Entity))
+                    {
+                        MessageBox.Show("Изменения отсутствуют!", "Ошибка!", MessageBoxButton.OK, 
+                            MessageBoxImage.Warning);
+                    }
                 }
             }
             catch (Exception ex)
@@ -112,7 +116,7 @@ namespace ClientsManagement.ViewModels
 
         public void Initialize(ClientDTO clientDTO, ClientsModel clientsModel)
         {
-            editType = EditType.Change;
+            editType = EditType.Update;
             this.clientsModel = clientsModel;
 
             InitializeEntity(clientDTO, true);
